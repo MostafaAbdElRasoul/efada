@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.persistence.MappedSuperclass;
 
 @MappedSuperclass
-public class BaseServiceImpl<E extends BaseEntity, ID> {
+public class BaseServiceImpl<E, ID> {
 
 	@Autowired
 	private BaseRepository<E, ID> baseRepository;
