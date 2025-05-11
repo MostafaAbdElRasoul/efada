@@ -2,6 +2,8 @@ package com.efada.base;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public interface IBaseService<E, ID, DTO> {
@@ -10,7 +12,7 @@ public interface IBaseService<E, ID, DTO> {
 	
 	public DTO getOne(ID id);
 	
-	public List<DTO> getAll();
+	public List<DTO> getAll(Pageable pageable);
 
 	public DTO save(DTO dto);
 

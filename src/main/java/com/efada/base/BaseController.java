@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,9 +27,9 @@ public class BaseController<ID, DTO, S extends BaseServiceImpl>{
 	private S baseServiceImpl;
 	
 	@GetMapping
-	public ResponseEntity<BaseResponse<List<DTO>>> getAll(){
+	public ResponseEntity<BaseResponse<List<DTO>>> getAll(Pageable pageable){
 		BaseResponse<List<DTO>> response = BaseResponse.<List<DTO>>builder()
-				.data((List<DTO>) baseServiceImpl.getAll())
+				.data((List<DTO>) baseServiceImpl.getAll(pageable))
 				.code(HttpStatus.OK.value())
 				.status(true)
 				.build();

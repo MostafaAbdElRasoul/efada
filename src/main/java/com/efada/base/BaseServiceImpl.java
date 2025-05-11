@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
@@ -37,10 +40,20 @@ public abstract class BaseServiceImpl<E, ID, DTO> implements IBaseService<E, ID,
 	}
 
 	@Override
-	public List<DTO> getAll() {
+	public List<DTO> getAll(Pageable pageable) {
 		String idPropertyName = getEntity().getClass().getDeclaredFields()[0].getName();
-		List<E> entityList = (List<E>) baseRepository.findAllOrderByDesc(idPropertyName);
-		return (List<DTO>) ObjectMapperUtils.mapAll(baseRepository.findAll(), getDTO().getClass());
+		
+		Pageable sortedPageable = PageRequest.of(
+		        pageable.getPageNumber(),
+		        pageable.getPageSize(),
+		        Sort.by(Sort.Direction.DESC, idPropertyName)
+		    );
+
+		    // Fetch entities with pagination and sorting
+		    Page<E> entityPage = baseRepository.findAll(sortedPageable);
+
+		    // Map entities to DTOs
+		    return (List<DTO>) ObjectMapperUtils.mapAll(entityPage.getContent(), getDTO().getClass());
 	}
 	
 	@Override
