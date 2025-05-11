@@ -3,6 +3,7 @@ package com.efada.base;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -14,18 +15,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import jakarta.persistence.MappedSuperclass;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @MappedSuperclass
 public abstract class BaseServiceImpl<E, ID, DTO> implements IBaseService<E, ID, DTO>{
 
 	@Autowired
 	private BaseRepository<E, ID> baseRepository;
 
-//	private ObjectMapper mapper = new ObjectMapper();
+	private ObjectMapper mapper = new ObjectMapper();
 	
 	@Override
 	public DTO getById(ID id) {
-		return (DTO) ObjectMapperUtils.map(baseRepository.findById(id).orElseThrow(() -> new EfadaCustomException("ID_NOT_FOUND")), getDTO().getClass());
+		return (DTO) ObjectMapperUtils.map(baseRepository.findById(id).get(), getDTO().getClass());
 	}
 
 	@Override
@@ -56,9 +59,10 @@ public abstract class BaseServiceImpl<E, ID, DTO> implements IBaseService<E, ID,
 	@Override
 	public DTO updateById(ID id, ObjectNode obj) {
 		try {
-			E entity = (E) baseRepository.findById(id).orElseThrow(() -> new EfadaCustomException("ID_NOT_FOUND"));
+			log.info("request object to update : "+ obj);
+			E entity = (E) baseRepository.findById(id).get();
 			ObjectMapper mapper = new ObjectMapper();
-			ObjectNode node = ObjectMapperUtils.map(obj, ObjectNode.class);
+			ObjectNode node = mapper.convertValue(obj, ObjectNode.class);
 			Class entityClass = entity.getClass();
 			
 			
@@ -70,8 +74,10 @@ public abstract class BaseServiceImpl<E, ID, DTO> implements IBaseService<E, ID,
 			DTO dto = (DTO) ObjectMapperUtils.map(entity, getDTO().getClass());
 		    return dto;
 			
-		} catch (Exception ex) {
-			ex.printStackTrace();
+		}catch (NoSuchElementException ex) {
+			throw new NoSuchElementException("NO_VALUE_PRESENT");
+		} 
+		catch (Exception ex) {
 			throw new EfadaCustomException("UPDATE_OPERATION_FAILED");
 		}
 	}
@@ -87,7 +93,7 @@ public abstract class BaseServiceImpl<E, ID, DTO> implements IBaseService<E, ID,
 		try {
 			Field entityField = entityClass.getDeclaredField(fieldName);
 			entityField.setAccessible(true);
-			Object value = ObjectMapperUtils.map(node.get(fieldName), entityField.getType());
+			Object value = mapper.convertValue(node.get(fieldName), entityField.getType());
 			entityField.set(entity, value);
 			entityField.setAccessible(false);
 		} catch (NoSuchFieldException ex) {
