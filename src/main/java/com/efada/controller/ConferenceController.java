@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/conferences")
+@RequestMapping("/api/v1/conferences")
 public class ConferenceController extends BaseController<Long, ConferenceDTO, ConferenceServiceImpl>{
 
 }

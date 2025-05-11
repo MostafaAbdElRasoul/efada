@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 public class AppUserController extends BaseController<Long, AppUserDTO, AppUserServiceImpl>{
 
 	

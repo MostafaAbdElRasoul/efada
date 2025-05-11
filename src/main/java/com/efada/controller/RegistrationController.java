@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/registrations")
+@RequestMapping("/api/v1/registrations")
 public class RegistrationController extends BaseController<Long, RegistrationDTO, RegistrationServiceImpl>{
 
 }

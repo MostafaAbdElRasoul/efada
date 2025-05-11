@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/sessions")
+@RequestMapping("/api/v1/sessions")
 public class SessionController extends BaseController<Long, SessionDTO, SessionServiceImpl>{
 
 	
