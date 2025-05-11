@@ -1,5 +1,6 @@
 package com.efada.base;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,29 +26,54 @@ public class BaseController<ID, DTO, S extends BaseServiceImpl>{
 	private S baseServiceImpl;
 	
 	@GetMapping
-	public ResponseEntity<List<DTO>> getAll(){
-		return new ResponseEntity(baseServiceImpl.getAll(), HttpStatus.OK);
+	public ResponseEntity<BaseResponse<List<DTO>>> getAll(){
+		BaseResponse<List<DTO>> response = BaseResponse.<List<DTO>>builder()
+				.data((List<DTO>) baseServiceImpl.getAll())
+				.code(HttpStatus.OK.value())
+				.status(true)
+				.build();
+		return ResponseEntity.ok(response);
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<DTO> getById(@PathVariable ID id){
-		return new ResponseEntity(baseServiceImpl.getById(id), HttpStatus.OK);
+	public ResponseEntity<BaseResponse<DTO>> getById(@PathVariable ID id){
+		BaseResponse<DTO> response = BaseResponse.<DTO>builder()
+				.data((DTO)baseServiceImpl.getById(id))
+				.code(HttpStatus.OK.value())
+				.status(true)
+				.build();
+		return ResponseEntity.ok(response);
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<DTO> updateById(@PathVariable ID id,@RequestBody ObjectNode requestObj){
-		return new ResponseEntity(baseServiceImpl.updateById(id, requestObj), HttpStatus.OK);
+	public ResponseEntity<BaseResponse<DTO>> updateById(@PathVariable ID id,@RequestBody ObjectNode requestObj){
+		BaseResponse<DTO> response = BaseResponse.<DTO>builder()
+				.data((DTO)baseServiceImpl.updateById(id, requestObj))
+				.code(HttpStatus.OK.value())
+				.status(true)
+				.build();
+		return ResponseEntity.ok(response);
 	}
 	
 	@PostMapping
-	public ResponseEntity<DTO> insert(@RequestBody DTO dto){
-		return new ResponseEntity(baseServiceImpl.save(dto), HttpStatus.CREATED);
+	public ResponseEntity<BaseResponse<DTO>> insert(@RequestBody DTO dto){
+		BaseResponse<DTO> response = BaseResponse.<DTO>builder()
+				.data((DTO)baseServiceImpl.save(dto))
+				.code(HttpStatus.CREATED.value())
+				.status(true)
+				.build();
+		return new ResponseEntity(response, HttpStatus.CREATED);
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> deleteById(@PathVariable ID id){
+	public ResponseEntity<BaseResponse> deleteById(@PathVariable ID id){
 		baseServiceImpl.deleteById(id);
-		return new ResponseEntity(HttpStatus.OK);
+		BaseResponse response = BaseResponse.builder()
+				.code(HttpStatus.OK.value())
+				.status(true)
+				.build();
+		
+		return ResponseEntity.ok(response);
 	}
 	
 
