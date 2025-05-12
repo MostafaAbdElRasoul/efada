@@ -1,11 +1,11 @@
 package com.efada.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-
-@AllArgsConstructor
-@NoArgsConstructor
 public class EfadaCustomException extends RuntimeException{
 
 	private String errorMessage;
+	
+	public EfadaCustomException(String errorMessage) {
+		super(errorMessage);
+		this.errorMessage = errorMessage;
+	}
 }

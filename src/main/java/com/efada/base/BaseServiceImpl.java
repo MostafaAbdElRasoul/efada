@@ -31,7 +31,8 @@ public abstract class BaseServiceImpl<E, ID, DTO> implements IBaseService<E, ID,
 	
 	@Override
 	public DTO getById(ID id) {
-		return (DTO) ObjectMapperUtils.map(baseRepository.findById(id).get(), getDTO().getClass());
+		return (DTO) ObjectMapperUtils.map(baseRepository.findById(id).orElseThrow(
+				()-> new NoSuchElementException("NO_VALUE_PRESENT")), getDTO().getClass());
 	}
 
 	@Override
