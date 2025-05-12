@@ -28,11 +28,12 @@ public class EfadaExceptionHandler extends ResponseEntityExceptionHandler{
 	@ExceptionHandler(NoSuchElementException.class)
 	public ResponseEntity<BaseResponse> handleNoSuchElementException(NoSuchElementException ex, Locale locale, HttpServletRequest request){
 		log.error("There is no data for your request >> "+ex.getMessage());
-		ex.printStackTrace();
+		
+		efadaUtils.printStackTrace(ex);
+		
 		String errorMessage = efadaUtils.getMessageFromMessageSource(ex.getMessage(), null, locale);
 		
-		Long errKey = efadaUtils.createTheErrorLog(ex, request, HttpStatus.INTERNAL_SERVER_ERROR.value());
-		log.error("errKey : "+errKey);
+		efadaUtils.createErrorLogAndErrorFile(ex, request, HttpStatus.BAD_REQUEST.value());
 		
 		BaseResponse response = BaseResponse.builder()
 				.code(HttpStatus.BAD_REQUEST.value())
@@ -46,10 +47,11 @@ public class EfadaExceptionHandler extends ResponseEntityExceptionHandler{
 	@ExceptionHandler(EfadaCustomException.class)
 	public ResponseEntity<BaseResponse> handleEfadaCustomException(EfadaCustomException ex, Locale locale, HttpServletRequest request){
 		log.error("Efada custom exception error >> "+ex.getMessage());
-		ex.printStackTrace();
 		
-		Long errKey = efadaUtils.createTheErrorLog(ex, request, HttpStatus.INTERNAL_SERVER_ERROR.value());
-		log.error("errKey : "+errKey);
+		efadaUtils.printStackTrace(ex);
+		
+		efadaUtils.createErrorLogAndErrorFile(ex, request, HttpStatus.BAD_REQUEST.value());
+
 		
 		String errorMessage = efadaUtils.getMessageFromMessageSource(ex.getMessage(), null, locale);
 
@@ -64,10 +66,11 @@ public class EfadaExceptionHandler extends ResponseEntityExceptionHandler{
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<BaseResponse> handleGeneralException(Exception ex, Locale locale, HttpServletRequest request) {
 		log.error("General exception error >> "+ex.getMessage());
-		ex.printStackTrace();
 		
-		Long errKey = efadaUtils.createTheErrorLog(ex, request, HttpStatus.INTERNAL_SERVER_ERROR.value());
-		log.error("errKey : "+errKey);
+		efadaUtils.printStackTrace(ex);
+		
+		efadaUtils.createErrorLogAndErrorFile(ex, request, HttpStatus.INTERNAL_SERVER_ERROR.value());
+
 		
 		String errorMessage = efadaUtils.getMessageFromMessageSource(ex.getMessage(), null, locale);
 		BaseResponse response = BaseResponse.builder()
