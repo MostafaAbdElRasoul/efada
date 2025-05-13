@@ -12,24 +12,27 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.efada.base.BaseResponse;
+import com.efada.utils.EfadaLogger;
 import com.efada.utils.EfadaUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 @ControllerAdvice
 public class EfadaExceptionHandler extends ResponseEntityExceptionHandler{
 
 	@Autowired
     private EfadaUtils efadaUtils;
 	
+	@Autowired
+	private EfadaLogger efadaLogger;
 	
 	@ExceptionHandler(NoSuchElementException.class)
 	public ResponseEntity<BaseResponse> handleNoSuchElementException(NoSuchElementException ex, Locale locale, HttpServletRequest request){
 		log.error("There is no data for your request >> "+ex.getMessage());
 		
-		efadaUtils.printStackTrace(ex);
+		efadaLogger.printStackTrace(ex, log);
 		
 		String errorMessage = efadaUtils.getMessageFromMessageSource(ex.getMessage(), null, locale);
 		
@@ -48,7 +51,7 @@ public class EfadaExceptionHandler extends ResponseEntityExceptionHandler{
 	public ResponseEntity<BaseResponse> handleEfadaCustomException(EfadaCustomException ex, Locale locale, HttpServletRequest request){
 		log.error("Efada custom exception error >> "+ex.getMessage());
 		
-		efadaUtils.printStackTrace(ex);
+		efadaLogger.printStackTrace(ex, log);
 		
 		efadaUtils.createErrorLogAndErrorFile(ex, request, HttpStatus.BAD_REQUEST.value());
 
@@ -67,7 +70,7 @@ public class EfadaExceptionHandler extends ResponseEntityExceptionHandler{
 	public ResponseEntity<BaseResponse> handleGeneralException(Exception ex, Locale locale, HttpServletRequest request) {
 		log.error("General exception error >> "+ex.getMessage());
 		
-		efadaUtils.printStackTrace(ex);
+		efadaLogger.printStackTrace(ex, log);
 		
 		efadaUtils.createErrorLogAndErrorFile(ex, request, HttpStatus.INTERNAL_SERVER_ERROR.value());
 

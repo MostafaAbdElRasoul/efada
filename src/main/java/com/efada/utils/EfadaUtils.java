@@ -3,8 +3,6 @@ package com.efada.utils;
 import java.time.Instant;
 import java.util.Locale;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Component;
@@ -13,9 +11,9 @@ import com.efada.entity.ErrorLog;
 import com.efada.repository.ErrorLogRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 @Component
 public class EfadaUtils {
 
@@ -33,9 +31,6 @@ public class EfadaUtils {
 		this.fileSystemUtils = fileSystemUtils;
 	}
 	
-	
-	@Value("${show.trace:false}")
-	private Boolean isShowTraceEnabled;
 	
 	public String getMessageFromMessageSource(String message, Object[] args, Locale locale) {
 		String msg = "";
@@ -73,13 +68,6 @@ public class EfadaUtils {
 		Long errKey = createTheErrorLog(ex, request, statusCode);
 		log.error("errKey : "+errKey);
 		fileSystemUtils.createErrorLogFile(ex, errKey);
-	}
-	
-	public void printStackTrace(Exception ex) {
-		log.info("isShowTraceEnabled : "+isShowTraceEnabled);
-		
-		if(isShowTraceEnabled)
-			ex.printStackTrace();
 	}
 
 	
