@@ -18,11 +18,13 @@ import com.efada.dto.ConferenceDTO;
 import com.efada.entity.Conference;
 import com.efada.serviceImpl.ConferenceServiceImpl;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/conferences")
+@Tag(name = "Conferences", description = "Operations related to conferences")
 public class ConferenceController extends BaseController<Long, ConferenceDTO, ConferenceServiceImpl>{
 
 }

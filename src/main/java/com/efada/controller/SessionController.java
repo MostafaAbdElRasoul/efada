@@ -18,11 +18,13 @@ import com.efada.dto.SessionDTO;
 import com.efada.entity.Session;
 import com.efada.serviceImpl.SessionServiceImpl;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/sessions")
+@Tag(name = "Sessions", description = "Operations related to sessions")
 public class SessionController extends BaseController<Long, SessionDTO, SessionServiceImpl>{
 
 	

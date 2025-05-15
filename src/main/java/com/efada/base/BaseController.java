@@ -18,6 +18,8 @@ import com.efada.entity.AppUser;
 import com.efada.serviceImpl.AppUserServiceImpl;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.MappedSuperclass;
 
 @MappedSuperclass
@@ -27,6 +29,7 @@ public class BaseController<ID, DTO, S extends BaseServiceImpl>{
 	private S baseServiceImpl;
 	
 	@GetMapping
+	@Operation(summary = "Get all", description = "Returns all object")
 	public ResponseEntity<BaseResponse<List<DTO>>> getAll(Pageable pageable){
 		BaseResponse<List<DTO>> response = BaseResponse.<List<DTO>>builder()
 				.data((List<DTO>) baseServiceImpl.getAll(pageable))
@@ -37,6 +40,7 @@ public class BaseController<ID, DTO, S extends BaseServiceImpl>{
 	}
 	
 	@GetMapping("/{id}")
+	@Operation(summary = "Get by ID", description = "Returns by ID")
 	public ResponseEntity<BaseResponse<DTO>> getById(@PathVariable ID id){
 		BaseResponse<DTO> response = BaseResponse.<DTO>builder()
 				.data((DTO)baseServiceImpl.getById(id))
@@ -47,6 +51,7 @@ public class BaseController<ID, DTO, S extends BaseServiceImpl>{
 	}
 	
 	@PutMapping("/{id}")
+	@Operation(summary = "Update by ID", description = "Returns the created object")
 	public ResponseEntity<BaseResponse<DTO>> updateById(@PathVariable ID id,@RequestBody ObjectNode requestObj){
 		BaseResponse<DTO> response = BaseResponse.<DTO>builder()
 				.data((DTO)baseServiceImpl.updateById(id, requestObj))
@@ -57,6 +62,7 @@ public class BaseController<ID, DTO, S extends BaseServiceImpl>{
 	}
 	
 	@PostMapping
+	@Operation(summary = "Insert", description = "Returns the created object")
 	public ResponseEntity<BaseResponse<DTO>> insert(@RequestBody DTO dto){
 		BaseResponse<DTO> response = BaseResponse.<DTO>builder()
 				.data((DTO)baseServiceImpl.save(dto))
@@ -67,6 +73,7 @@ public class BaseController<ID, DTO, S extends BaseServiceImpl>{
 	}
 	
 	@DeleteMapping("/{id}")
+	@Operation(summary = "Delete by ID")
 	public ResponseEntity<BaseResponse> deleteById(@PathVariable ID id){
 		baseServiceImpl.deleteById(id);
 		BaseResponse response = BaseResponse.builder()

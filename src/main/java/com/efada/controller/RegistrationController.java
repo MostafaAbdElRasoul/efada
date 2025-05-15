@@ -18,11 +18,13 @@ import com.efada.dto.RegistrationDTO;
 import com.efada.entity.Registration;
 import com.efada.serviceImpl.RegistrationServiceImpl;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/registrations")
+@Tag(name = "Registrations", description = "Operations related to registrations")
 public class RegistrationController extends BaseController<Long, RegistrationDTO, RegistrationServiceImpl>{
 
 }

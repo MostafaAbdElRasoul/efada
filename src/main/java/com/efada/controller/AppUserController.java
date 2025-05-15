@@ -18,11 +18,13 @@ import com.efada.dto.AppUserDTO;
 import com.efada.entity.AppUser;
 import com.efada.serviceImpl.AppUserServiceImpl;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/users")
+@Tag(name = "Users", description = "Operations related to users")
 public class AppUserController extends BaseController<Long, AppUserDTO, AppUserServiceImpl>{
 
 	
