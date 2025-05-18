@@ -1,5 +1,6 @@
 package com.efada.controller;
 
+import java.awt.PageAttributes.MediaType;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -11,9 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.efada.base.BaseController;
+import com.efada.base.BaseResponse;
 import com.efada.dto.AppUserDTO;
 import com.efada.entity.AppUser;
 import com.efada.serviceImpl.AppUserServiceImpl;
@@ -28,4 +32,33 @@ import lombok.RequiredArgsConstructor;
 public class AppUserController extends BaseController<Long, AppUserDTO, AppUserServiceImpl>{
 
 	
+	
+	@PutMapping("/{id}/image")
+	public ResponseEntity<BaseResponse> changeUserProfileImgae(@RequestParam MultipartFile file,
+			@PathVariable Long id){
+		byte[] fileBytes= baseServiceImpl.changeUserProfileImgae(file, id);
+		
+		BaseResponse response = BaseResponse.builder()
+				.data(fileBytes)
+				.code(HttpStatus.OK.value())
+				.status(true)
+				.build();
+		
+		return new ResponseEntity<BaseResponse>(response, HttpStatus.OK);
+		
+	}
+	
+	@GetMapping("/{id}/image")
+	public ResponseEntity<BaseResponse> getUserProfileImgae(@PathVariable Long id){
+		byte[] fileBytes= baseServiceImpl.getUserProfileImgae(id);
+		
+		BaseResponse response = BaseResponse.builder()
+				.data(fileBytes)
+				.code(HttpStatus.OK.value())
+				.status(true)
+				.build();
+		
+		return new ResponseEntity<BaseResponse>(response, HttpStatus.OK);
+		
+	} 
 }

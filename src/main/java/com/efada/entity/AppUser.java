@@ -41,7 +41,7 @@ public class AppUser extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    private String profilePicture;
+    private String profilePictureName;
 
     // Relations
     

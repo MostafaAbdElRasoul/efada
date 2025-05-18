@@ -24,7 +24,7 @@ public class AppUserDTO {
 
     private UserRole role;
 
-    private String profilePicture;
+    private String profilePictureName;
     
     private List<Session> sessions;
 

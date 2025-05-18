@@ -26,7 +26,7 @@ import jakarta.persistence.MappedSuperclass;
 public class BaseController<ID, DTO, S extends BaseServiceImpl>{
 	
 	@Autowired
-	private S baseServiceImpl;
+	protected S baseServiceImpl;
 	
 	@GetMapping
 	@Operation(summary = "Get all", description = "Returns all object")

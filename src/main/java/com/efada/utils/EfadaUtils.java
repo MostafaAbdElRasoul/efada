@@ -6,6 +6,7 @@ import java.util.Locale;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.efada.entity.ErrorLog;
 import com.efada.repository.ErrorLogRepository;

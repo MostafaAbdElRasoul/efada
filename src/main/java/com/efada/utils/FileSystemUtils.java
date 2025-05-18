@@ -1,10 +1,13 @@
 package com.efada.utils;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -12,10 +15,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 @Component
 public class FileSystemUtils {
 
+	@Value("${attachment.path}")
+	private String attachmentsPath;
+	
 	@Value("${errorLog.path}")
 	private String errorLogPath;
 	
@@ -63,5 +70,43 @@ public class FileSystemUtils {
 
 	    return stackTraceLines;
 	}
+	
+	public void saveToFileSystem(MultipartFile file , String fileName) throws IOException {
+		InputStream stream = file.getInputStream();		
+		Path path = getFilePath(attachmentsPath);
+		Files.copy(stream, path.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+	}
+	
+	private Path getFilePath(String attachmentsPath)
+	{
+		System.out.println("filePath : "+attachmentsPath);
+		File filePath = new File(attachmentsPath);
+		if(!filePath.exists())
+			filePath.mkdirs();
+		Path path = Paths.get(attachmentsPath);
+		return path;
+	}
+	
+	public void deleteFile(String fileName) throws IOException 
+	{
+		Files.deleteIfExists(getFilePath(attachmentsPath).resolve(fileName));
+	}
+	
+	public byte [] getFileBytes(String fileName) throws IOException
+	{
+		
+		String location = attachmentsPath+"/"+fileName;
+		File file = new File(location);
+		return Files.readAllBytes(file.toPath());
+	}
+	
 
+	public  String getFileExtension(MultipartFile file) {
+		if (!file.getContentType().startsWith("image/")) {
+		    throw new IllegalArgumentException("INVALID_FILE_TYPE");
+		}
+		String originalFileName = file.getOriginalFilename();
+		String fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+		return fileExtension;
+	}
 }
