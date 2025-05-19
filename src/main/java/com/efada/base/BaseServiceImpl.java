@@ -17,17 +17,21 @@ import com.efada.utils.ObjectMapperUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-@MappedSuperclass
+@Transactional
 public abstract class BaseServiceImpl<E, ID, DTO> implements IBaseService<E, ID, DTO>{
 
 	@Autowired
 	protected BaseRepository<E, ID> baseRepository;
 
 	private ObjectMapper mapper = new ObjectMapper();
+	@Autowired
+	private EntityManager entityManager;
 	
 	@Override
 	public DTO getById(ID id) {
@@ -62,6 +66,7 @@ public abstract class BaseServiceImpl<E, ID, DTO> implements IBaseService<E, ID,
 		// TODO Auto-generated method stub
 		E entity = (E) ObjectMapperUtils.map(dto, getEntity().getClass());
 		 E entityAfterSaving = (E)baseRepository.save(entity);
+		 entityManager.refresh(entityManager.merge(entityAfterSaving));
 		return (DTO) ObjectMapperUtils.map(entityAfterSaving, getDTO().getClass());
 	}
 

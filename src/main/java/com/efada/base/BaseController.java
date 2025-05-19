@@ -22,7 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.MappedSuperclass;
 
-@MappedSuperclass
+
 public class BaseController<ID, DTO, S extends BaseServiceImpl>{
 	
 	@Autowired

@@ -1,11 +1,7 @@
 package com.efada.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-import com.efada.entity.AppUser;
-import com.efada.entity.Conference;
-import com.efada.entity.Registration;
 import com.efada.enums.SessionStatus;
 
 import lombok.Getter;
@@ -29,9 +25,9 @@ public class SessionDTO {
 
     private String resourceUrl;
 
-    private AppUser speaker;
+    private AppUserDTO speaker;
 
-    private Conference conference;
+    private ConferenceDTO conference;
 
-    private List<Registration> registrations;
+//    private List<RegistrationDTO> registrations;
 }

@@ -30,7 +30,7 @@ public class Conference extends BaseEntity {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    @OneToMany(mappedBy = "conference")
-    private List<Session> sessions;
+//    @OneToMany(mappedBy = "conference")
+//    private List<Session> sessions;
 
 }

@@ -26,5 +26,5 @@ public class ConferenceDTO {
     
     private LocalDate endDate;
 
-    private List<Session> sessions;
+//    private List<SessionDTO> sessions;
 }

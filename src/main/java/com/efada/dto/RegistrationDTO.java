@@ -16,9 +16,9 @@ public class RegistrationDTO {
 	
 	private Long id;
 
-    private AppUser attendee;
+    private AppUserDTO attendee;
 
-    private Session session;
+    private SessionDTO session;
 
     private Instant registeredAt;
 

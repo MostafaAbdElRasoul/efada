@@ -54,7 +54,7 @@ public class Session extends BaseEntity {
     @JoinColumn(name = "conference_id")
     private Conference conference;
 
-    @OneToMany(mappedBy = "session")
-    private List<Registration> registrations;
+//    @OneToMany(mappedBy = "session")
+//    private List<Registration> registrations;
 
 }

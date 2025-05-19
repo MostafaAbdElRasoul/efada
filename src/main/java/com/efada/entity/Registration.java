@@ -30,5 +30,5 @@ public class Registration {
     @JoinColumn(name = "session_id")
     private Session session;
 
-    private Instant registeredAt = Instant.now();
+    private Instant registeredAt;
 }

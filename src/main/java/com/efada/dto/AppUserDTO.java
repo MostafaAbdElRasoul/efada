@@ -26,7 +26,7 @@ public class AppUserDTO {
 
     private String profilePictureName;
     
-    private List<Session> sessions;
-
-    private List<Registration> registrations;
+//    private List<SessionDTO> sessions;
+//
+//    private List<RegistrationDTO> registrations;
 }

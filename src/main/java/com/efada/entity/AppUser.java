@@ -45,9 +45,9 @@ public class AppUser extends BaseEntity{
 
     // Relations
     
-    @OneToMany(mappedBy = "speaker")
-    private List<Session> sessions;
-
-    @OneToMany(mappedBy = "attendee")
-    private List<Registration> registrations;
+//    @OneToMany(mappedBy = "speaker")
+//    private List<Session> sessions;
+//
+//    @OneToMany(mappedBy = "attendee")
+//    private List<Registration> registrations;
 }
