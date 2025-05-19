@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+//http://localhost:9090/files/profile_1_img.PNG
+
 @Configuration
 public class StaticResourceConfig implements WebMvcConfigurer {
 	
