@@ -15,6 +15,7 @@ import com.efada.base.BaseResponse;
 import com.efada.utils.EfadaLogger;
 import com.efada.utils.EfadaUtils;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,21 +29,31 @@ public class EfadaExceptionHandler extends ResponseEntityExceptionHandler{
 	@Autowired
 	private EfadaLogger efadaLogger;
 	
-	@ExceptionHandler(NoSuchElementException.class)
-	public ResponseEntity<BaseResponse> handleNoSuchElementException(NoSuchElementException ex, Locale locale, HttpServletRequest request){
-		log.error("There is no data for your request >> "+ex.getMessage());
-		
+	private BaseResponse storeErrorAndReturnResponse(Exception ex, int httpStatusCode, Locale locale, HttpServletRequest request) {
 		efadaLogger.printStackTrace(ex, log);
 		
 		String errorMessage = efadaUtils.getMessageFromMessageSource(ex.getMessage(), null, locale);
 		
-		efadaUtils.createErrorLogAndErrorFile(ex, request, HttpStatus.BAD_REQUEST.value());
+		efadaUtils.createErrorLogAndErrorFile(ex, request, httpStatusCode);
 		
 		BaseResponse response = BaseResponse.builder()
-				.code(HttpStatus.BAD_REQUEST.value())
+				.code(httpStatusCode)
 				.errors(Arrays.asList(errorMessage))
 				.status(false)
 				.build();
+		return response;
+	}
+	
+	@ExceptionHandler(EntityNotFoundException.class)
+	public ResponseEntity<BaseResponse> handleEntityNotFoundException(EntityNotFoundException ex, Locale locale, HttpServletRequest request){
+		BaseResponse response = storeErrorAndReturnResponse(ex, HttpStatus.BAD_REQUEST.value(), locale, request);
+		return new ResponseEntity<BaseResponse>(response, HttpStatus.BAD_REQUEST);
+	}
+	
+	@ExceptionHandler(NoSuchElementException.class)
+	public ResponseEntity<BaseResponse> handleNoSuchElementException(NoSuchElementException ex, Locale locale, HttpServletRequest request){
+		log.error("There is no data for your request >> "+ex.getMessage());
+		BaseResponse response = storeErrorAndReturnResponse(ex, HttpStatus.BAD_REQUEST.value(), locale, request);
 		return new ResponseEntity<BaseResponse>(response, HttpStatus.BAD_REQUEST);
 	}
 	
@@ -51,18 +62,7 @@ public class EfadaExceptionHandler extends ResponseEntityExceptionHandler{
 	public ResponseEntity<BaseResponse> handleEfadaCustomException(EfadaCustomException ex, Locale locale, HttpServletRequest request){
 		log.error("Efada custom exception error >> "+ex.getMessage());
 		
-		efadaLogger.printStackTrace(ex, log);
-		
-		efadaUtils.createErrorLogAndErrorFile(ex, request, HttpStatus.BAD_REQUEST.value());
-
-		
-		String errorMessage = efadaUtils.getMessageFromMessageSource(ex.getMessage(), null, locale);
-
-		BaseResponse response = BaseResponse.builder()
-				.code(HttpStatus.BAD_REQUEST.value())
-				.errors(Arrays.asList(errorMessage))
-				.status(false)
-				.build();
+		BaseResponse response = storeErrorAndReturnResponse(ex, HttpStatus.BAD_REQUEST.value(), locale, request);
 		return new ResponseEntity<BaseResponse>(response, HttpStatus.BAD_REQUEST);
 	}
 	
@@ -70,18 +70,7 @@ public class EfadaExceptionHandler extends ResponseEntityExceptionHandler{
 	public ResponseEntity<BaseResponse> handleGeneralException(Exception ex, Locale locale, HttpServletRequest request) {
 		log.error("General exception error >> "+ex.getMessage());
 		
-		efadaLogger.printStackTrace(ex, log);
-		
-		efadaUtils.createErrorLogAndErrorFile(ex, request, HttpStatus.INTERNAL_SERVER_ERROR.value());
-
-		
-		String errorMessage = efadaUtils.getMessageFromMessageSource(ex.getMessage(), null, locale);
-		BaseResponse response = BaseResponse.builder()
-				.code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-				.errors(Arrays.asList(errorMessage))
-				.status(false)
-				.build();
-		
+		BaseResponse response = storeErrorAndReturnResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR.value(), locale, request);
 		return new ResponseEntity<BaseResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }
