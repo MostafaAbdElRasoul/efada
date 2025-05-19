@@ -9,13 +9,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
+
 @Entity
-@Table(name = "registrations")
+@Table(name = "registrations", uniqueConstraints = {
+	    @UniqueConstraint(
+	            name = "UK_REGISTRATION_ATTENDEE_SESSION",
+	            columnNames = {"attendee_id", "session_id"}
+	        )
+	})
 public class Registration {
 	
     @Id

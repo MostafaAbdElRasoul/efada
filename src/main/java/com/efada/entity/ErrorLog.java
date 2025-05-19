@@ -32,6 +32,8 @@ public class ErrorLog {
 	private Long erKey;
 	
 	private String exception;
+	
+	@Column(length = 4000)
     private String message;
     private String path;
     private int statusCode;

@@ -3,8 +3,12 @@ package com.efada.exception;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -42,6 +46,42 @@ public class EfadaExceptionHandler extends ResponseEntityExceptionHandler{
 				.status(false)
 				.build();
 		return response;
+	}
+	
+	private String extractConstraintName(DataIntegrityViolationException ex) {
+	    Throwable rootCause = ExceptionUtils.getRootCause(ex);
+	    if (rootCause != null && rootCause.getMessage() != null) {
+	        String message = rootCause.getMessage();
+
+	        // Match the constraint name after 'key '
+	        Pattern pattern = Pattern.compile("key '([^']+)'");
+	        Matcher matcher = pattern.matcher(message);
+	        if (matcher.find()) {
+	            String fullKey = matcher.group(1); // e.g., registrations.UK_REGISTRATION_ATTENDEE_SESSION
+	            int dotIndex = fullKey.lastIndexOf('.');
+	            return dotIndex != -1 ? fullKey.substring(dotIndex + 1) : fullKey;
+	        }
+	    }
+	    return "unknown_constraint";
+	}
+	
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	public ResponseEntity<BaseResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex, Locale locale, HttpServletRequest request){
+		log.error("Constraint error from the database : ");
+		String constraintName = extractConstraintName(ex);
+		log.error("constraintName : "+constraintName);
+		
+		efadaLogger.printStackTrace(ex, log);
+		String errorMessage = efadaUtils.getMessageFromMessageSource(constraintName, null, locale);
+		
+		efadaUtils.createErrorLogAndErrorFile(ex, request, HttpStatus.BAD_REQUEST.value());
+		
+		BaseResponse response = BaseResponse.builder()
+				.code(HttpStatus.BAD_REQUEST.value())
+				.errors(Arrays.asList(errorMessage))
+				.status(false)
+				.build();
+		return new ResponseEntity<BaseResponse>(response, HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(EntityNotFoundException.class)
