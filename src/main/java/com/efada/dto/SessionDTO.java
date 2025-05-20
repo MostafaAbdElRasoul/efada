@@ -2,6 +2,8 @@ package com.efada.dto;
 
 import java.time.LocalDateTime;
 
+import com.efada.entity.AppUser;
+import com.efada.entity.Conference;
 import com.efada.enums.SessionStatus;
 
 import lombok.Getter;

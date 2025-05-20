@@ -13,6 +13,7 @@ import com.efada.dto.RegistrationDTO;
 import com.efada.entity.AppUser;
 import com.efada.entity.Registration;
 import com.efada.entity.Session;
+import com.efada.exception.EfadaCustomException;
 import com.efada.repository.AppUserRepository;
 import com.efada.repository.RegistrationRepository;
 import com.efada.repository.SessionRepository;
@@ -49,6 +50,11 @@ public class RegistrationServiceImpl extends BaseServiceImpl<Registration, Long,
         Session session = sessionRepository.findById(createRegistrationDTO.getSessionId())
             .orElseThrow(() -> new EntityNotFoundException("SESSION_NOT_FOUND"));
 
+        //replaced with the unique constraint
+//        boolean exists = registrationRepository.existsByAttendee_IdAndSession_Id(createRegistrationDTO.getAttendeeId(), createRegistrationDTO.getSessionId());
+//        if (exists) 
+//            throw new EfadaCustomException("UK_REGISTRATION_ATTENDEE_SESSION");
+        
         Registration registration = new Registration();
         registration.setAttendee(attendee);
         registration.setSession(session);

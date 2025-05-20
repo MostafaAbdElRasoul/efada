@@ -21,7 +21,7 @@ import com.efada.serviceImpl.ConferenceServiceImpl;
 import com.efada.serviceImpl.RegistrationServiceImpl;
 import com.efada.serviceImpl.SessionServiceImpl;
 
-@Component
+//@Component
 public class LineRunner implements CommandLineRunner{
 
 	@Autowired
@@ -40,13 +40,13 @@ public class LineRunner implements CommandLineRunner{
 		user.setUsername("admin");
 		user.setPassword("1234");
 		user.setRole(UserRole.ADMIN);
-		user.setEmail("admin@");
+		user.setEmail("admin@gmail.com");
 		
 		AppUserDTO speaker = new AppUserDTO();
 		speaker.setUsername("speaker");
 		speaker.setPassword("1234");
 		speaker.setRole(UserRole.SPEAKER);
-		speaker.setEmail("speaker@");
+		speaker.setEmail("speaker@gmail.com");
 		
 		AppUserDTO attendee = new AppUserDTO();
 		attendee.setUsername("attendee");

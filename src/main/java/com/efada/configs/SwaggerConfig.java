@@ -21,7 +21,7 @@ public class SwaggerConfig {
     @Bean
     public GroupedOpenApi userApi() {
         return GroupedOpenApi.builder()
-            .group("Efada APIs")
+            .group("User APIs")
             .pathsToMatch("/api/v1/users/**")
             .build();
     }

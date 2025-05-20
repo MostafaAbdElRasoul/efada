@@ -108,7 +108,7 @@ public abstract class BaseServiceImpl<E, ID, DTO> implements IBaseService<E, ID,
 	public abstract DTO getDTO();
 	
 	private void updateField(String fieldName, E entity, ObjectNode node, Class entityClass)
-			throws SecurityException, IllegalArgumentException, IllegalAccessException {
+			throws SecurityException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
 		try {
 			Field entityField = entityClass.getDeclaredField(fieldName);
 			entityField.setAccessible(true);
@@ -116,7 +116,7 @@ public abstract class BaseServiceImpl<E, ID, DTO> implements IBaseService<E, ID,
 			entityField.set(entity, value);
 			entityField.setAccessible(false);
 		} catch (NoSuchFieldException ex) {
-			ex.printStackTrace();
+			throw new NoSuchFieldException(ex.getMessage());
 		}
 	}
 	
