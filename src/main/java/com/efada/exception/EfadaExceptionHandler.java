@@ -6,11 +6,15 @@ import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.naming.AuthenticationException;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -64,6 +68,13 @@ public class EfadaExceptionHandler extends ResponseEntityExceptionHandler{
 	    }
 	    return "unknown_constraint";
 	}
+	
+//	@ExceptionHandler(UsernameNotFoundException.class)
+//	public ResponseEntity<BaseResponse> handleUsernameNotFoundException(UsernameNotFoundException ex, Locale locale, HttpServletRequest request){
+//		System.out.println("username not found : ");
+//		BaseResponse response = storeErrorAndReturnResponse(ex, HttpStatus.UNAUTHORIZED.value(), locale, request);
+//		return new ResponseEntity<BaseResponse>(response, HttpStatus.UNAUTHORIZED);
+//	}
 	
 	@ExceptionHandler(DataIntegrityViolationException.class)
 	public ResponseEntity<BaseResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex, Locale locale, HttpServletRequest request){
