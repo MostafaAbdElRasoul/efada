@@ -7,6 +7,11 @@ import org.springframework.security.core.userdetails.User;
 
 import com.efada.entity.AppUser;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class EfadaSecurityUser extends User{
 
 	public EfadaSecurityUser(String username, String password,
