@@ -2,7 +2,8 @@ package com.efada.serviceImpl;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Locale;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +19,7 @@ import com.efada.base.BaseResponse;
 import com.efada.dto.AppUserDTO;
 import com.efada.entity.AppUser;
 import com.efada.enums.UserRole;
+import com.efada.exception.EfadaCustomException;
 import com.efada.repository.AppUserRepository;
 import com.efada.security.EfadaSecurityUser;
 import com.efada.security.jwt.JwtService;
@@ -54,15 +56,10 @@ public class AuthenticationService {
 	}
 	
 	
-	private BaseResponse generateAuthenticationResponse (Object userData) {
+	private BaseResponse generateAuthenticationResponse (AppUser userData) {
     	
 		AppUserDTO userDataDTO = ObjectMapperUtils.map(userData, AppUserDTO.class);
 		EfadaSecurityUser  authenticationUser = createAuthenticationUserObject(userDataDTO);
-
-		ObjectNode tokenBodyData = getTokenBodyData(userDataDTO);
-		String token = jwtService.createToken(tokenBodyData);
-		System.out.println("generateAuthenticationResponse "+token);
-		EfadaUtils.registerUserInSecurityContext(authenticationUser);
 		
 //		LoggedUser loggedUser = IthmaarCommon.createLoggedUserObject(authenticationUser, token, httpRequest);
 //		loggedUserRepository.save(loggedUser);
@@ -73,39 +70,99 @@ public class AuthenticationService {
 	
 //		String messageSourceCode = action.equals("register")?"REGISTRATION_COMPLETE_MSG":"SUCCESS_LOGIN_MSG";
 //		String message = messageSource.getMessage(messageSourceCode, new Object[] {}, new Locale(HttpRequestMetaData.language));
+		
+		// Generate both access and refresh tokens
+        String accessToken = jwtService.generateAccessToken(authenticationUser);
+        String refreshToken = jwtService.generateRefreshToken(authenticationUser);
+        
+        // Register user in security context
+        EfadaUtils.registerUserInSecurityContext(authenticationUser);
+        
+        // Prepare token map for response
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("accessToken", accessToken);
+        tokens.put("refreshToken", refreshToken);
+        tokens.put("tokenType", "Bearer");
+        
 		BaseResponse response = BaseResponse.builder()
                 .status(true)
                 .code(HttpStatus.OK.value())
                 .data(userDataDTO)
-                .token(token)
+                .tokens(tokens)
                 .build();
 		
          return response;
 	}
 	
-	private ObjectNode getTokenBodyData(AppUserDTO userData) {
-		ObjectMapper mapper = new ObjectMapper();
-		String authorities = userData.getRole().equals(UserRole.ADMIN)?"ADMIN":
-			userData.getRole().equals(UserRole.SPEAKER)? "SPEAKER":"ATENDEE";
-	    ObjectNode tokenBodyData = mapper.createObjectNode();
-	    tokenBodyData.put("id", userData.getId());
-	    tokenBodyData.put("username", userData.getUsername());
-	    tokenBodyData.put("type", userData.getRole().toString());
-	    tokenBodyData.put("authorities", authorities);
-	    return tokenBodyData;
-	}
-	
-	
 	private EfadaSecurityUser createAuthenticationUserObject(AppUserDTO userDataDTO) {
 		
 		Collection<? extends GrantedAuthority> authorities = Arrays.asList(
 				      new SimpleGrantedAuthority(
-				    		  userDataDTO.getRole().equals("ADMIN")?"ADMIN":
-				    			  userDataDTO.getRole().equals("SPEAKER")? "SPEAKER":"ATENDEE"));
+				    		  userDataDTO.getRole().equals(UserRole.ADMIN)?"ADMIN":
+				    			  userDataDTO.getRole().equals(UserRole.SPEAKER)? "SPEAKER":"ATENDEE"));
 		
 		EfadaSecurityUser authenticationUser = new EfadaSecurityUser(userDataDTO.getUsername()
 				, userDataDTO.getPassword(), authorities,
 				userDataDTO.getRole().toString(), userDataDTO.getId());
+		
 		return authenticationUser;
 	} 
+	
+	public BaseResponse refreshToken(String refreshToken) {
+        try {
+            // Validate and clean refresh token
+            String cleanedRefreshToken = validateAndCleanRefreshToken(refreshToken);
+            
+            // Verify token validity and type
+            if (!jwtService.isValidRefreshToken(cleanedRefreshToken)) {
+                throw new EfadaCustomException("INVALID_REFRESH_TOKEN");
+            }
+            
+            return generateResponeForRefreshToken(cleanedRefreshToken);
+            
+        } catch (Exception e) {
+            System.out.println("Refresh token error: {}"+e.getMessage());
+            throw new EfadaCustomException("INVALID_REFRESH_TOKEN");
+        }
+    }
+    
+    private BaseResponse generateResponeForRefreshToken(String cleanedRefreshToken) {
+    	// Extract user details
+        String username = jwtService.extractUsername(cleanedRefreshToken);
+        AppUser user = appUserRepository.findByUsernameIgnoreCase(username)
+                .orElseThrow(() -> new UsernameNotFoundException("USERNAME_NOT_FOUND"));
+        
+        // Create authentication user object
+        EfadaSecurityUser userDetails = createAuthenticationUserObject(
+                ObjectMapperUtils.map(user, AppUserDTO.class));
+        
+        // Generate new tokens (with refresh token rotation)
+        Map<String, String> tokens = generateNewTokens(userDetails);
+        
+        return BaseResponse.builder()
+                .status(true)
+                .code(HttpStatus.OK.value())
+                .tokens(tokens)
+                .build();
+	}
+
+
+	private String validateAndCleanRefreshToken(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new EfadaCustomException("REFRESH_TOKEN_IS_REQUIRED");
+        }
+        return refreshToken.startsWith("Bearer ") ? 
+               refreshToken.substring(7) : refreshToken;
+    }
+    
+    private Map<String, String> generateNewTokens(EfadaSecurityUser userDetails) {
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("accessToken", jwtService.generateAccessToken(userDetails));
+        tokens.put("refreshToken", jwtService.generateRefreshToken(userDetails));
+        tokens.put("tokenType", "Bearer");
+        return tokens;
+    }
+   
+
+
 }

@@ -1,18 +1,28 @@
 package com.efada.security.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.efada.security.EfadaSecurityUser;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import java.io.IOException;
 import java.security.Key;
+import java.util.Base64;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,12 +32,17 @@ import java.util.function.Function;
 public class JwtService {
 
     public static final String secretKey = "EfadaSecKeyEfadaSecKeyEfadaSecKeyEfadaSecKeyEfadaSecKeyEfadaSecKeyEfadaSecKeyEfadaSecKeyEfadaSecKeyEfadaSecKey";
+    // Token type constants
+    private static final String TOKEN_TYPE_CLAIM = "token_type";
+    private static final String ACCESS_TOKEN_TYPE = "access";
+    private static final String REFRESH_TOKEN_TYPE = "refresh";
+    
     
     @Value("${application.security.jwt.expiration}")
-    private long jwtExpiration;
+    private int jwtExpiration;
     
     @Value("${application.security.jwt.refresh-token.expiration}")
-    private long refreshExpiration;
+    private int refreshExpiration;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -36,6 +51,42 @@ public class JwtService {
 //        return extractClaim(token, claims -> claims.get("username", String.class)); // ✅ correct for custom claim
 //    }
 
+    public String generateAccessToken(EfadaSecurityUser userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(TOKEN_TYPE_CLAIM, ACCESS_TOKEN_TYPE);
+     // Extract the first authority as a string
+        String authority = userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElse("ATENDEE");
+        claims.put("authorities", authority);
+        // Add any additional user-specific claims here
+
+        return buildToken(claims, userDetails, jwtExpiration);
+    }
+
+    public String generateRefreshToken(EfadaSecurityUser userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(TOKEN_TYPE_CLAIM, REFRESH_TOKEN_TYPE);
+        
+        return buildToken(claims, userDetails, refreshExpiration);
+    }
+    
+    public boolean isRefreshToken(String token) {
+	    try {
+	    	final Claims claims = extractAllClaims(token);
+	        return REFRESH_TOKEN_TYPE.equals(claims.get(TOKEN_TYPE_CLAIM));
+	    }catch (ExpiredJwtException ex) {
+	    	return REFRESH_TOKEN_TYPE.equals(ex.getClaims().get(TOKEN_TYPE_CLAIM));
+		}
+        
+    }
+
+    public boolean isAccessToken(String token) {
+        final Claims claims = extractAllClaims(token);
+        return ACCESS_TOKEN_TYPE.equals(claims.get(TOKEN_TYPE_CLAIM));
+    }
+    
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
@@ -52,21 +103,20 @@ public class JwtService {
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
-    public String generateRefreshToken(EfadaSecurityUser userDetails) {
-        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
-    }
-
     private String buildToken(
         Map<String, Object> extraClaims,
         UserDetails userDetails,
-        long expiration
+        int expiration
     ) {
+    	Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.SECOND, expiration);
+		
         return Jwts
             .builder()
             .setClaims(extraClaims)
             .setSubject(userDetails.getUsername())
-            .setIssuedAt(new Date(System.currentTimeMillis()))
-            .setExpiration(new Date(System.currentTimeMillis() + expiration))
+            .setIssuedAt(new Date())
+            .setExpiration(calendar.getTime())
             .signWith(getSignInKey(), SignatureAlgorithm.HS256)
             .compact();
     }
@@ -85,7 +135,6 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-    	System.out.println("extractAllClaims > "+token);
         return Jwts
             .parserBuilder()
             .setSigningKey(getSignInKey())
@@ -99,34 +148,23 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
     
-//    public String createToken(ObjectNode tokenBodyData) {
-//    	System.out.println("tokenBodyData "+tokenBodyData);
-//    	
-//		String token = Jwts.builder()
-//				           .addClaims(extractAllClaims(tokenBodyData.toString()))
-//				           .setIssuedAt(new Date())
-//				           .setExpiration(new Date(System.currentTimeMillis()+(jwtExpiration)))
-//				           .signWith(getSignInKey())
-//				           .compact();
-//		
-//		return "Bearer "+ token;
-//	}
-    
-    public String createToken(ObjectNode tokenBodyData) {
-        System.out.println("tokenBodyData: " + tokenBodyData);
-
-        // Convert ObjectNode to Map<String, Object>
-        Map<String, Object> claims = new HashMap<>();
-        tokenBodyData.fields().forEachRemaining(entry -> claims.put(entry.getKey(), entry.getValue().asText()));
-
-        String token = Jwts.builder()
-                .addClaims(claims)
-                .setSubject(tokenBodyData.get("username").asText())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
-
-        return "Bearer " + token;
+    public boolean isRefreshTokenExpired(String token) {
+        try {
+            extractAllClaims(token);
+            return false;
+        } catch (ExpiredJwtException ex) {
+            return true;
+        }
     }
+    
+    public boolean isValidRefreshToken(String token) {
+        try {
+            return isRefreshToken(token) && 
+                   !isTokenExpired(token) && 
+                   extractAllClaims(token) != null;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
 }
