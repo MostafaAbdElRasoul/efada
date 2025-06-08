@@ -60,6 +60,7 @@ public class JwtService {
                 .map(GrantedAuthority::getAuthority)
                 .orElse("ATENDEE");
         claims.put("authorities", authority);
+        claims.put("usrId", userDetails.getId());
         // Add any additional user-specific claims here
 
         return buildToken(claims, userDetails, jwtExpiration);
