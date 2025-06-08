@@ -5,11 +5,14 @@ import java.util.Locale;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.efada.entity.ErrorLog;
 import com.efada.repository.ErrorLogRepository;
+import com.efada.security.EfadaSecurityUser;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -71,5 +74,9 @@ public class EfadaUtils {
 		fileSystemUtils.createErrorLogFile(ex, errKey);
 	}
 
+	public static void registerUserInSecurityContext(EfadaSecurityUser user) {
+		Authentication authentication = new UsernamePasswordAuthenticationToken(user , null , user.getAuthorities());
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+	}
 	
 }

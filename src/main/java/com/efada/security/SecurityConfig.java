@@ -30,16 +30,18 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/configuration/security",
             "/swagger-ui/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+            "/api/v1/auth"
 	};
 	
-//    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final JwtAuthenticationFilter jwtAuthFilter;
     private final EfadaUserDetailsService userDetailsService;
     private final EfadaAuthenticationEntryPoint efadaAuthenticationEntryPoint;
 
-    public SecurityConfig(EfadaAuthenticationEntryPoint efadaAuthenticationEntryPoint,
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter,
+    		EfadaAuthenticationEntryPoint efadaAuthenticationEntryPoint,
     		EfadaUserDetailsService userDetailsService) {
-//        this.jwtAuthFilter = jwtAuthFilter;
+        this.jwtAuthFilter = jwtAuthFilter;
     	this.efadaAuthenticationEntryPoint = efadaAuthenticationEntryPoint;
         this.userDetailsService = userDetailsService;
     }
@@ -52,15 +54,15 @@ public class SecurityConfig {
                 .requestMatchers(PUBLIC_END_POINTS).permitAll()
                 .anyRequest().authenticated()
             )
-            .httpBasic(httpBasic -> httpBasic
-                    .authenticationEntryPoint(efadaAuthenticationEntryPoint)
-                )
-            .exceptionHandling(ex -> ex
-                    .authenticationEntryPoint(efadaAuthenticationEntryPoint)
-                )
-//            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authenticationProvider(authenticationProvider());
-//            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+//            .httpBasic(httpBasic -> httpBasic
+//                    .authenticationEntryPoint(efadaAuthenticationEntryPoint)
+//                )
+//            .exceptionHandling(ex -> ex
+//                    .authenticationEntryPoint(efadaAuthenticationEntryPoint)
+//                )
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

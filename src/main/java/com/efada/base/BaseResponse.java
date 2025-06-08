@@ -18,6 +18,7 @@ public class BaseResponse<T> {
 	@Builder.Default // only works when you initialize the field inline 
     private String timestamp = Instant.now().toString();
     private Boolean status;
+    private String token;
     private int code;
     private String message;
     private T data;
