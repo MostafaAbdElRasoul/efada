@@ -19,12 +19,7 @@ import lombok.Setter;
 @Getter
 
 @Entity
-@Table(name = "registrations", uniqueConstraints = {
-	    @UniqueConstraint(
-	            name = "UK_REGISTRATION_ATTENDEE_SESSION",
-	            columnNames = {"attendee_id", "session_id"}
-	        )
-	})
+@Table(name = "registrations")
 public class Registration {
 	
     @Id
