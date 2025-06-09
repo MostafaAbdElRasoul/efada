@@ -12,4 +12,6 @@ import java.util.Optional;
 public interface AppUserRepository extends BaseRepository<AppUser, Long>{
 
 	Optional<AppUser> findByUsernameIgnoreCase(String username);
+	
+	boolean existsByEmailOrUsername(String email, String username);
 }

@@ -24,10 +24,10 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Transactional
-public abstract class BaseServiceImpl<E, ID, DTO> implements IBaseService<E, ID, DTO>{
+public abstract class BaseServiceImpl<E, ID, DTO, R extends BaseRepository<E, ID>> implements IBaseService<E, ID, DTO>{
 
 	@Autowired
-	protected BaseRepository<E, ID> baseRepository;
+	protected R baseRepository;
 
 	private ObjectMapper mapper = new ObjectMapper();
 	@Autowired

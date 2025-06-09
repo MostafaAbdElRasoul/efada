@@ -11,9 +11,11 @@ import com.efada.base.BaseServiceImpl;
 import com.efada.dto.AppUserDTO;
 import com.efada.entity.AppUser;
 import com.efada.exception.EfadaCustomException;
+import com.efada.repository.AppUserRepository;
 import com.efada.utils.EfadaLogger;
 import com.efada.utils.EfadaUtils;
 import com.efada.utils.FileSystemUtils;
+import com.efada.utils.ObjectMapperUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AppUserServiceImpl extends BaseServiceImpl<AppUser, Long, AppUserDTO>{
+public class AppUserServiceImpl extends BaseServiceImpl<AppUser, Long, AppUserDTO, AppUserRepository>{
 
-	
 	private final FileSystemUtils fileSystemUtils;	
 	private final EfadaLogger efadaLogger;
 	
@@ -73,6 +74,15 @@ public class AppUserServiceImpl extends BaseServiceImpl<AppUser, Long, AppUserDT
 			efadaLogger.printStackTrace(ex, log);
 			throw new EfadaCustomException("ERROR_DUE_TO_GETTING_USER_PROFILE_IMAGE");
 		}
+	}
+
+	@Override
+	public AppUserDTO save(AppUserDTO dto) {
+		AppUser user = ObjectMapperUtils.map(dto, AppUser.class);
+
+		if(baseRepository.existsByEmailOrUsername(user.getEmail(), user.getUsername()))
+			throw new EfadaCustomException("EMAIL_OR_USERNAME_IS_ALREADY_EXISTS");		
+		return super.save(dto);
 	}
 
 }

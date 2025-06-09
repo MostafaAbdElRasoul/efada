@@ -24,7 +24,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @Service
-public class RegistrationServiceImpl extends BaseServiceImpl<Registration, Long, RegistrationDTO>{
+public class RegistrationServiceImpl extends BaseServiceImpl<Registration, Long, RegistrationDTO, RegistrationRepository>{
 
 	
 	private final AppUserRepository appUserRepository;
