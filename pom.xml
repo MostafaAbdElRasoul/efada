@@ -107,6 +107,20 @@
 			<artifactId>jedis</artifactId>
 			<type>jar</type>
 		</dependency>
+		
+    <!-- ShedLock Core -->
+    <dependency>
+        <groupId>net.javacrumbs.shedlock</groupId>
+        <artifactId>shedlock-spring</artifactId>
+        <version>5.10.0</version>
+    </dependency>
+
+    <!-- ShedLock for JDBC -->
+    <dependency>
+        <groupId>net.javacrumbs.shedlock</groupId>
+        <artifactId>shedlock-provider-jdbc-template</artifactId>
+        <version>5.10.0</version>
+    </dependency>
 	</dependencies>
 
 	<build>
