@@ -1,6 +1,7 @@
 package com.efada.utils;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Locale;
 
 import org.springframework.context.MessageSource;
@@ -11,6 +12,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.efada.entity.ErrorLog;
+import com.efada.entity.UserLoginHistory;
+import com.efada.enums.LoginAction;
+import com.efada.redis.entities.LoggedUser;
 import com.efada.repository.ErrorLogRepository;
 import com.efada.security.EfadaSecurityUser;
 
@@ -26,6 +30,7 @@ public class EfadaUtils {
 	private final ErrorLogRepository errorLogRepository;
 	
 	private final FileSystemUtils fileSystemUtils;
+	
 	
 	public EfadaUtils(MessageSource messageSource, ErrorLogRepository errorLogRepository,
 			FileSystemUtils fileSystemUtils) {
@@ -79,4 +84,40 @@ public class EfadaUtils {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 	}
 	
+	public static LoggedUser createLoggedUserObject(EfadaSecurityUser user ,String token , HttpServletRequest httpRequest) {
+		LoggedUser loggedUser = LoggedUser.builder()
+				.id(user.getId().toString())
+				.userName(user.getUsername())
+				.browser(httpRequest.getHeader("User-Agent"))
+				.ipAddress(getClientIP(httpRequest))
+				.token(token)
+				.loginDate(LocalDateTime.now())
+				.build();
+		return loggedUser;
+		
+	}
+	
+	public static UserLoginHistory createUserLoginHistory(EfadaSecurityUser user, LoginAction action, HttpServletRequest httpRequest) {
+		UserLoginHistory userloginHistory = UserLoginHistory.builder()
+				.userId(user.getId())
+				.browser(httpRequest.getHeader("User-Agent"))
+				.ipAddress(getClientIP(httpRequest))
+				.loginDate(LocalDateTime.now())
+				.action(action)
+				.build();
+		
+		return userloginHistory;	
+	}
+	
+	public static String getClientIP(HttpServletRequest request) {
+		String xfHeader = request.getHeader("X-Forwarded-For");
+		String remoteIp = request.getRemoteAddr();
+
+		if (xfHeader == null) {
+			return remoteIp;
+		}
+		String clientIpAddress = xfHeader.split(",")[0];
+	
+		return clientIpAddress;
+	}
 }

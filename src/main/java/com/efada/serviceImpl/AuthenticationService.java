@@ -1,5 +1,6 @@
 package com.efada.serviceImpl;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,9 +19,14 @@ import org.springframework.stereotype.Service;
 import com.efada.base.BaseResponse;
 import com.efada.dto.AppUserDTO;
 import com.efada.entity.AppUser;
+import com.efada.entity.UserLoginHistory;
+import com.efada.enums.LoginAction;
 import com.efada.enums.UserRole;
 import com.efada.exception.EfadaCustomException;
+import com.efada.redis.entities.LoggedUser;
+import com.efada.redis.repositories.LoggedUserRepository;
 import com.efada.repository.AppUserRepository;
+import com.efada.repository.UserLoginHistoryRepository;
 import com.efada.security.EfadaSecurityUser;
 import com.efada.security.jwt.JwtService;
 import com.efada.utils.EfadaUtils;
@@ -28,6 +34,7 @@ import com.efada.utils.ObjectMapperUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -37,6 +44,9 @@ public class AuthenticationService {
 	private final AppUserRepository appUserRepository;
 	private final AuthenticationManager authenticationManager;
 	private final JwtService jwtService;
+	private final LoggedUserRepository loggedUserRepository;
+	private final HttpServletRequest request;
+	private final UserLoginHistoryRepository userLoginHistoryRepository;
 	
 	public BaseResponse login(ObjectNode authenticationData) {
 		AppUser user = appUserRepository
@@ -61,10 +71,6 @@ public class AuthenticationService {
 		AppUserDTO userDataDTO = ObjectMapperUtils.map(userData, AppUserDTO.class);
 		EfadaSecurityUser  authenticationUser = createAuthenticationUserObject(userDataDTO);
 		
-//		LoggedUser loggedUser = IthmaarCommon.createLoggedUserObject(authenticationUser, token, httpRequest);
-//		loggedUserRepository.save(loggedUser);
-		
-//		saveLoginHistory(customerDataDTO.getBpKey());
 		
 //		int statusCode = action.equals("register")?HttpStatus.CREATED.value():HttpStatus.OK.value();
 	
@@ -74,6 +80,12 @@ public class AuthenticationService {
 		// Generate both access and refresh tokens
         String accessToken = jwtService.generateAccessToken(authenticationUser);
         String refreshToken = jwtService.generateRefreshToken(authenticationUser);
+        
+		LoggedUser loggedUser = EfadaUtils.createLoggedUserObject(authenticationUser, accessToken, request);
+		loggedUserRepository.save(loggedUser);
+		
+		UserLoginHistory userLoginHistory = EfadaUtils.createUserLoginHistory(authenticationUser, LoginAction.IN, request);
+		userLoginHistoryRepository.save(userLoginHistory);
         
         // Register user in security context
         EfadaUtils.registerUserInSecurityContext(authenticationUser);
@@ -157,12 +169,17 @@ public class AuthenticationService {
     
     private Map<String, String> generateNewTokens(EfadaSecurityUser userDetails) {
         Map<String, String> tokens = new HashMap<>();
-        tokens.put("accessToken", jwtService.generateAccessToken(userDetails));
+        String accessToken = jwtService.generateAccessToken(userDetails);
+        tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", jwtService.generateRefreshToken(userDetails));
         tokens.put("tokenType", "Bearer");
+        
+        LoggedUser loggedUser = EfadaUtils.createLoggedUserObject(userDetails, accessToken, request);
+		loggedUserRepository.save(loggedUser);
+		
+		UserLoginHistory userLoginHistory = EfadaUtils.createUserLoginHistory(userDetails, LoginAction.IN, request);
+		userLoginHistoryRepository.save(userLoginHistory);
         return tokens;
     }
-   
-
 
 }
