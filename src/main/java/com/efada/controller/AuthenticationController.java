@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.efada.base.BaseResponse;
@@ -40,5 +41,20 @@ public class AuthenticationController {
             @RequestHeader("Authorization") String refreshToken) {
         BaseResponse response = authenticationService.refreshToken(refreshToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+	
+	@PostMapping("/forgot-password")
+    public ResponseEntity<BaseResponse> forgotPassword(@RequestParam String email) {
+		return authenticationService.forgotPassword(email);
+    }
+	
+	@PostMapping("/reset-password")
+    public ResponseEntity<BaseResponse> resetPassword(
+        @RequestParam String email,
+        @RequestParam Integer otp,
+        @RequestParam String newPassword
+    ) {
+		return authenticationService.resetPassword(email, otp, newPassword);
+        
     }
 }

@@ -49,7 +49,7 @@ public class OTPUtils {
 			redisHandler.delete(key);
 			return true;
 		} else {
-			throw new EfadaCustomException("INVALID_OTP");	
+			throw new EfadaCustomException("INVALID_OR_EXPIRED_OTP");	
 			
 		}
 	}

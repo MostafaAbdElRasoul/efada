@@ -5,8 +5,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.efada.base.BaseResponse;
@@ -30,6 +35,8 @@ import com.efada.repository.UserLoginHistoryRepository;
 import com.efada.security.EfadaSecurityUser;
 import com.efada.security.jwt.JwtService;
 import com.efada.utils.EfadaUtils;
+import com.efada.utils.EmailService;
+import com.efada.utils.OTPUtils;
 import com.efada.utils.ObjectMapperUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -41,12 +48,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
+    private final EfadaUtils efadaUtils;
 	private final AppUserRepository appUserRepository;
 	private final AuthenticationManager authenticationManager;
 	private final JwtService jwtService;
 	private final LoggedUserRepository loggedUserRepository;
 	private final HttpServletRequest request;
 	private final UserLoginHistoryRepository userLoginHistoryRepository;
+	private final OTPUtils otpUtils;
+	private final EmailService emailService;
+	private final PasswordEncoder passwordEncoder;
+
 	
 	public BaseResponse login(ObjectNode authenticationData) {
 		AppUser user = appUserRepository
@@ -180,6 +192,47 @@ public class AuthenticationService {
 		UserLoginHistory userLoginHistory = EfadaUtils.createUserLoginHistory(userDetails, LoginAction.IN, request);
 		userLoginHistoryRepository.save(userLoginHistory);
         return tokens;
+    }
+
+
+    public ResponseEntity<BaseResponse> forgotPassword(String email) {
+        Optional<AppUser> optionalUser = appUserRepository.findByEmailIgnoreCase(email);
+
+        if (optionalUser.isEmpty()) {
+            return buildResponse(efadaUtils.getMessageFromMessageSource("EMAIL_NOT_FOUND", null, request.getLocale()),
+            		false, HttpStatus.BAD_REQUEST);
+        }
+
+        int otp = otpUtils.generateOTP(email);
+        emailService.sendEmail(email, efadaUtils.getMessageFromMessageSource("OTP_EMAIL_SUBJECT", null, request.getLocale()),
+        		efadaUtils.getMessageFromMessageSource("OTP_EMAIL_BODY", null, request.getLocale()) + otp);
+
+        return buildResponse(efadaUtils.getMessageFromMessageSource("OTP_SENT_TO_EMAIL", null, request.getLocale()), true, HttpStatus.OK);
+    }
+
+    public ResponseEntity<BaseResponse> resetPassword(String email, Integer otp, String newPassword) {
+        if (!otpUtils.verifyOTP(email, otp)) {
+            return buildResponse(efadaUtils.getMessageFromMessageSource("INVALID_OR_EXPIRED_OTP", null, request.getLocale()),
+            		false, HttpStatus.BAD_REQUEST);
+        }
+
+        AppUser user = appUserRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new EfadaCustomException("EMAIL_NOT_FOUND"));
+
+        user.setPassword(passwordEncoder.encode(newPassword)); // Use encoding!
+        appUserRepository.save(user);
+
+        return buildResponse(efadaUtils.getMessageFromMessageSource("PASSWORD_RESET_SUCCESS", null, request.getLocale())
+        		, true, HttpStatus.OK);
+    }
+
+    private ResponseEntity<BaseResponse> buildResponse(String message, boolean success, HttpStatus status) {
+        BaseResponse response = BaseResponse.builder()
+                .status(success)
+                .code(status.value())
+                .data(message)
+                .build();
+        return new ResponseEntity<>(response, status);
     }
 
 }

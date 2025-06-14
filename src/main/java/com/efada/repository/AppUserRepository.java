@@ -14,4 +14,9 @@ public interface AppUserRepository extends BaseRepository<AppUser, Long>{
 	Optional<AppUser> findByUsernameIgnoreCase(String username);
 	
 	boolean existsByEmailOrUsername(String email, String username);
+	
+	boolean existsByEmailIgnoreCase(String email);
+	
+	Optional<AppUser> findByEmailIgnoreCase(String email);
+
 }
