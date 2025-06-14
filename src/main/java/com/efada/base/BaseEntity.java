@@ -22,7 +22,7 @@ import lombok.Setter;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
 
-	@Column(name="CREATED_BY")
+	@Column(name="CREATED_BY" , updatable = false)
 	@CreatedBy
 	private Long createdBy;
 	@Column(name="UPDATED_BY")
@@ -40,5 +40,5 @@ public abstract class BaseEntity {
 	
 	@Column(name="VERSION_NO")
 	@Version
-	private Integer versionNo;
+	private int versionNo;
 }

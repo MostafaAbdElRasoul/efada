@@ -17,6 +17,7 @@ public class EfadaAuditorAware implements AuditorAware<Long> {
 			EfadaSecurityUser user = (EfadaSecurityUser) auth.getPrincipal();
 			return Optional.of(user.getId());
 		}
-		return Optional.of(-1L);
+	    return Optional.empty(); // No user available (anonymous or system action)
+
 	}
 }
