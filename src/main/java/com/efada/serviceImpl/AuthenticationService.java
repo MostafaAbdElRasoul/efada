@@ -205,7 +205,7 @@ public class AuthenticationService {
 
         int otp = otpUtils.generateOTP(email);
         emailService.sendEmail(email, efadaUtils.getMessageFromMessageSource("OTP_EMAIL_SUBJECT", null, request.getLocale()),
-        		efadaUtils.getMessageFromMessageSource("OTP_EMAIL_BODY", null, request.getLocale()) + otp);
+        		efadaUtils.getMessageFromMessageSource("OTP_EMAIL_BODY", new Object[]{otp}, request.getLocale()));
 
         return buildResponse(efadaUtils.getMessageFromMessageSource("OTP_SENT_TO_EMAIL", null, request.getLocale()), true, HttpStatus.OK);
     }
