@@ -11,6 +11,7 @@ import com.efada.base.BaseServiceImpl;
 import com.efada.dto.AppUserDTO;
 import com.efada.entity.AppUser;
 import com.efada.exception.EfadaCustomException;
+import com.efada.exception.EfadaValidationException;
 import com.efada.repository.AppUserRepository;
 import com.efada.utils.EfadaLogger;
 import com.efada.utils.EfadaUtils;
@@ -55,11 +56,11 @@ public class AppUserServiceImpl extends BaseServiceImpl<AppUser, Long, AppUserDT
 			baseRepository.save(user);
 			return fileSystemUtils.getFileBytes(fileUniqueName);
 		}catch(IllegalArgumentException ex) {
-			throw new EfadaCustomException("INVALID_FILE_TYPE");
+			throw new EfadaValidationException("INVALID_FILE_TYPE");
 		}
 		catch (Exception ex) {
 			efadaLogger.printStackTrace(ex, log);
-			throw new EfadaCustomException("ERROR_DUE_TO_CHNAGNING_USER_PROFILE_IMAGE");
+			throw new EfadaValidationException("ERROR_DUE_TO_CHNAGNING_USER_PROFILE_IMAGE");
 		}
 		
 		
@@ -72,7 +73,7 @@ public class AppUserServiceImpl extends BaseServiceImpl<AppUser, Long, AppUserDT
 			return fileSystemUtils.getFileBytes(user.getProfilePictureName());
 		}catch (Exception ex) {
 			efadaLogger.printStackTrace(ex, log);
-			throw new EfadaCustomException("ERROR_DUE_TO_GETTING_USER_PROFILE_IMAGE");
+			throw new EfadaValidationException("ERROR_DUE_TO_GETTING_USER_PROFILE_IMAGE");
 		}
 	}
 
@@ -81,7 +82,7 @@ public class AppUserServiceImpl extends BaseServiceImpl<AppUser, Long, AppUserDT
 		AppUser user = ObjectMapperUtils.map(dto, AppUser.class);
 
 		if(baseRepository.existsByEmailOrUsername(user.getEmail(), user.getUsername()))
-			throw new EfadaCustomException("EMAIL_OR_USERNAME_IS_ALREADY_EXISTS");		
+			throw new EfadaValidationException("EMAIL_OR_USERNAME_IS_ALREADY_EXISTS");		
 		return super.save(dto);
 	}
 

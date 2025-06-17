@@ -109,6 +109,22 @@ public class EfadaExceptionHandler extends ResponseEntityExceptionHandler{
 	}
 	
 	
+	@ExceptionHandler(EfadaValidationException.class)
+	public ResponseEntity<BaseResponse> handleEfadaValidationException(EfadaValidationException ex, Locale locale, HttpServletRequest request){
+		log.error("Efada validation exception error >> "+ex.getMessage());
+		
+		efadaLogger.printStackTrace(ex, log);
+		
+		String errorMessage = efadaUtils.getMessageFromMessageSource(ex.getMessage(), null, locale);
+		
+		BaseResponse response = BaseResponse.builder()
+				.code(HttpStatus.BAD_REQUEST.value())
+				.errors(Arrays.asList(errorMessage))
+				.status(false)
+				.build();
+		return new ResponseEntity<BaseResponse>(response, HttpStatus.BAD_REQUEST);
+	}
+	
 	@ExceptionHandler(EfadaCustomException.class)
 	public ResponseEntity<BaseResponse> handleEfadaCustomException(EfadaCustomException ex, Locale locale, HttpServletRequest request){
 		log.error("Efada custom exception error >> "+ex.getMessage());

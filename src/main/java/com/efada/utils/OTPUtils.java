@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.efada.exception.EfadaCustomException;
+import com.efada.exception.EfadaValidationException;
 import com.efada.redis.RedisHandler;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +50,7 @@ public class OTPUtils {
 			redisHandler.delete(key);
 			return true;
 		} else {
-			throw new EfadaCustomException("INVALID_OR_EXPIRED_OTP");	
+			throw new EfadaValidationException("INVALID_OR_EXPIRED_OTP");	
 			
 		}
 	}

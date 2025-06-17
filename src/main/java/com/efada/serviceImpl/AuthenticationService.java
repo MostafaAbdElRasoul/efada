@@ -28,6 +28,7 @@ import com.efada.entity.UserLoginHistory;
 import com.efada.enums.LoginAction;
 import com.efada.enums.UserRole;
 import com.efada.exception.EfadaCustomException;
+import com.efada.exception.EfadaValidationException;
 import com.efada.redis.entities.LoggedUser;
 import com.efada.redis.repositories.LoggedUserRepository;
 import com.efada.repository.AppUserRepository;
@@ -139,14 +140,14 @@ public class AuthenticationService {
             
             // Verify token validity and type
             if (!jwtService.isValidRefreshToken(cleanedRefreshToken)) {
-                throw new EfadaCustomException("INVALID_REFRESH_TOKEN");
+                throw new EfadaValidationException("INVALID_REFRESH_TOKEN");
             }
             
             return generateResponeForRefreshToken(cleanedRefreshToken);
             
         } catch (Exception e) {
             System.out.println("Refresh token error: {}"+e.getMessage());
-            throw new EfadaCustomException("INVALID_REFRESH_TOKEN");
+            throw new EfadaValidationException("INVALID_REFRESH_TOKEN");
         }
     }
     
@@ -173,7 +174,7 @@ public class AuthenticationService {
 
 	private String validateAndCleanRefreshToken(String refreshToken) {
         if (refreshToken == null || refreshToken.isBlank()) {
-            throw new EfadaCustomException("REFRESH_TOKEN_IS_REQUIRED");
+            throw new EfadaValidationException("REFRESH_TOKEN_IS_REQUIRED");
         }
         return refreshToken.startsWith("Bearer ") ? 
                refreshToken.substring(7) : refreshToken;
@@ -217,7 +218,7 @@ public class AuthenticationService {
         }
 
         AppUser user = appUserRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new EfadaCustomException("EMAIL_NOT_FOUND"));
+                .orElseThrow(() -> new EfadaValidationException("EMAIL_NOT_FOUND"));
 
         user.setPassword(passwordEncoder.encode(newPassword)); // Use encoding!
         appUserRepository.save(user);
