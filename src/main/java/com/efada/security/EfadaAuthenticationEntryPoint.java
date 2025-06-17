@@ -53,7 +53,7 @@ public class EfadaAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 authException.getMessage(), null, request.getLocale()
         );
         
-        sendErrorResponse(response, request, 
+        EfadaUtils.sendErrorResponse(response, request, 
                          HttpStatus.UNAUTHORIZED, 
                          List.of(errorMessage));
     }
@@ -67,7 +67,7 @@ public class EfadaAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 request.getLocale()
         );
         
-        sendErrorResponse(response, request, 
+        EfadaUtils.sendErrorResponse(response, request, 
                          HttpStatus.UNAUTHORIZED, 
                          List.of(errorMessage));
     }
@@ -81,23 +81,9 @@ public class EfadaAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 request.getLocale()
         );
         
-        sendErrorResponse(response, request, 
+        EfadaUtils.sendErrorResponse(response, request, 
                          HttpStatus.UNAUTHORIZED, 
                          List.of(errorMessage));
     }
 
-    private void sendErrorResponse(HttpServletResponse response,
-                                 HttpServletRequest request,
-                                 HttpStatus status,
-                                 List<String> errorMessages) throws IOException {
-        BaseResponse errorResponse = BaseResponse.builder()
-                .code(status.value())
-                .status(false)
-                .errors(errorMessages)
-                .build();
-
-        response.setContentType("application/json");
-        response.setStatus(status.value());
-        new ObjectMapper().writeValue(response.getOutputStream(), errorResponse);
-    }
 }
