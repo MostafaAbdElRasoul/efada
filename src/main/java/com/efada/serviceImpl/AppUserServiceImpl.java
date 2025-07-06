@@ -18,16 +18,31 @@ import com.efada.utils.EfadaUtils;
 import com.efada.utils.FileSystemUtils;
 import com.efada.utils.ObjectMapperUtils;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class AppUserServiceImpl extends BaseServiceImpl<AppUser, Long, AppUserDTO, AppUserRepository>{
 
 	private final FileSystemUtils fileSystemUtils;	
 	private final EfadaLogger efadaLogger;
+	private final EntityManager entityManager;
+	private final AppUserRepository baseRepository;
+	
+	
+	public AppUserServiceImpl(AppUserRepository baseRepository,
+			EntityManager entityManager,
+			EfadaLogger efadaLogger,
+			FileSystemUtils fileSystemUtils) {
+
+		super(baseRepository, entityManager);
+		this.efadaLogger = efadaLogger;
+		this.fileSystemUtils = fileSystemUtils;
+		this.entityManager = entityManager;
+		this.baseRepository = baseRepository;
+	}
 	
 	@Override
 	public AppUser getEntity() {
@@ -80,7 +95,6 @@ public class AppUserServiceImpl extends BaseServiceImpl<AppUser, Long, AppUserDT
 	@Override
 	public AppUserDTO save(AppUserDTO dto) {
 		AppUser user = ObjectMapperUtils.map(dto, AppUser.class);
-
 		if(baseRepository.existsByEmailOrUsername(user.getEmail(), user.getUsername()))
 			throw new EfadaValidationException("EMAIL_OR_USERNAME_IS_ALREADY_EXISTS");		
 		return super.save(dto);
