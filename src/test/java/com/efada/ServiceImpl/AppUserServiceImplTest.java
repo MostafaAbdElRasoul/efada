@@ -49,16 +49,16 @@ class AppUserServiceImplTest {
 
     @BeforeEach
     void setup() throws Exception {
-        appUserService = new AppUserServiceImpl(appUserRepository, entityManager, efadaLogger, fileSystemUtils);
+        appUserService = new AppUserServiceImpl(efadaLogger, fileSystemUtils);
 
         // Inject baseRepository and entityManager via reflection to parent class
-//        Field repoField = appUserService.getClass().getSuperclass().getDeclaredField("baseRepository");
-//        repoField.setAccessible(true);
-//        repoField.set(appUserService, appUserRepository);
-//
-//        Field emField = appUserService.getClass().getSuperclass().getDeclaredField("entityManager");
-//        emField.setAccessible(true);
-//        emField.set(appUserService, entityManager);
+        Field repoField = appUserService.getClass().getSuperclass().getDeclaredField("baseRepository");
+        repoField.setAccessible(true);
+        repoField.set(appUserService, appUserRepository);
+
+        Field emField = appUserService.getClass().getSuperclass().getDeclaredField("entityManager");
+        emField.setAccessible(true);
+        emField.set(appUserService, entityManager);
 
         // Common mock setup
         testUser = new AppUser();

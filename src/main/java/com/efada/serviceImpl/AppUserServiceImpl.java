@@ -28,20 +28,15 @@ public class AppUserServiceImpl extends BaseServiceImpl<AppUser, Long, AppUserDT
 
 	private final FileSystemUtils fileSystemUtils;	
 	private final EfadaLogger efadaLogger;
-	private final EntityManager entityManager;
-	private final AppUserRepository baseRepository;
 	
 	
-	public AppUserServiceImpl(AppUserRepository baseRepository,
-			EntityManager entityManager,
+	public AppUserServiceImpl(
 			EfadaLogger efadaLogger,
 			FileSystemUtils fileSystemUtils) {
 
-		super(baseRepository, entityManager);
 		this.efadaLogger = efadaLogger;
 		this.fileSystemUtils = fileSystemUtils;
-		this.entityManager = entityManager;
-		this.baseRepository = baseRepository;
+
 	}
 	
 	@Override
