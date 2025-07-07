@@ -154,9 +154,10 @@ public class AuthenticationService {
     private BaseResponse generateResponeForRefreshToken(String cleanedRefreshToken) {
     	// Extract user details
         String username = jwtService.extractUsername(cleanedRefreshToken);
+        System.out.println("username "+username);
         AppUser user = appUserRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new UsernameNotFoundException("USERNAME_NOT_FOUND"));
-        
+        System.out.println("22222222222 "+username);
         // Create authentication user object
         EfadaSecurityUser userDetails = createAuthenticationUserObject(
                 ObjectMapperUtils.map(user, AppUserDTO.class));

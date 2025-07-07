@@ -58,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         
         // Skip filter for refresh token endpoint
-        if (request.getServletPath().equals("/api/v1/auth/refresh")) {
+        if (request.getRequestURI().equals("/api/v1/auth/refresh")) {
             filterChain.doFilter(request, response);
             return;
         }
