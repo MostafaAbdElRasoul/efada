@@ -49,7 +49,7 @@ class AppUserServiceImplTest {
 
     @BeforeEach
     void setup() throws Exception {
-        appUserService = new AppUserServiceImpl(efadaLogger, fileSystemUtils);
+        appUserService = new AppUserServiceImpl(appUserRepository, entityManager, efadaLogger, fileSystemUtils);
 
         // Inject baseRepository and entityManager via reflection to parent class
         Field repoField = appUserService.getClass().getSuperclass().getDeclaredField("baseRepository");

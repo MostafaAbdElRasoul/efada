@@ -19,6 +19,7 @@ import com.efada.utils.FileSystemUtils;
 import com.efada.utils.ObjectMapperUtils;
 
 import jakarta.persistence.EntityManager;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,18 +27,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AppUserServiceImpl extends BaseServiceImpl<AppUser, Long, AppUserDTO, AppUserRepository>{
 
-	private final FileSystemUtils fileSystemUtils;	
-	private final EfadaLogger efadaLogger;
+	private FileSystemUtils fileSystemUtils;	
+	private EfadaLogger efadaLogger;
 	
 	
 	public AppUserServiceImpl(
-			EfadaLogger efadaLogger,
-			FileSystemUtils fileSystemUtils) {
-
-		this.efadaLogger = efadaLogger;
-		this.fileSystemUtils = fileSystemUtils;
-
-	}
+            AppUserRepository baseRepository,
+            EntityManager entityManager,
+            EfadaLogger efadaLogger,
+            FileSystemUtils fileSystemUtils
+    ) {
+        super(baseRepository, entityManager); 
+        this.fileSystemUtils = fileSystemUtils;
+        this.efadaLogger = efadaLogger;
+    }
 	
 	@Override
 	public AppUser getEntity() {
@@ -52,6 +55,7 @@ public class AppUserServiceImpl extends BaseServiceImpl<AppUser, Long, AppUserDT
 	}
 
 	public byte[] changeUserProfileImgae(MultipartFile file, Long id) {
+		System.out.println("change "+baseRepository);
 		AppUser user = baseRepository.findById(id).orElseThrow(
 				()-> new NoSuchElementException("NO_VALUE_PRESENT"));
 		try {
@@ -79,8 +83,14 @@ public class AppUserServiceImpl extends BaseServiceImpl<AppUser, Long, AppUserDT
 	public byte[] getUserProfileImgae(Long id) {
 		AppUser user = baseRepository.findById(id).orElseThrow(
 				()-> new NoSuchElementException("NO_VALUE_PRESENT"));
-		try {			
+		try {
+			System.out.println("profile "+user.getProfilePictureName());
+			if(user.getProfilePictureName() == null)
+				throw new EfadaValidationException("USER_HAS_NOT_PROFILE_IMAGE");
 			return fileSystemUtils.getFileBytes(user.getProfilePictureName());
+		}catch (EfadaValidationException ex) {
+			efadaLogger.printStackTrace(ex, log);
+			throw new EfadaValidationException("USER_HAS_NOT_PROFILE_IMAGE");
 		}catch (Exception ex) {
 			efadaLogger.printStackTrace(ex, log);
 			throw new EfadaValidationException("ERROR_DUE_TO_GETTING_USER_PROFILE_IMAGE");
