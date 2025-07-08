@@ -14,6 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -128,6 +129,14 @@ public class EfadaExceptionHandler extends ResponseEntityExceptionHandler{
 	@ExceptionHandler(EfadaCustomException.class)
 	public ResponseEntity<BaseResponse> handleEfadaCustomException(EfadaCustomException ex, Locale locale, HttpServletRequest request){
 		log.error("Efada custom exception error >> "+ex.getMessage());
+		
+		BaseResponse response = storeErrorAndReturnResponse(ex, HttpStatus.BAD_REQUEST.value(), locale, request);
+		return new ResponseEntity<BaseResponse>(response, HttpStatus.BAD_REQUEST);
+	}
+	
+	@ExceptionHandler(AuthorizationDeniedException.class)
+	public ResponseEntity<BaseResponse> handleAuthorizationDeniedException(AuthorizationDeniedException ex, Locale locale, HttpServletRequest request){
+		log.error("AuthorizationDeniedException error >> "+ex.getMessage());
 		
 		BaseResponse response = storeErrorAndReturnResponse(ex, HttpStatus.BAD_REQUEST.value(), locale, request);
 		return new ResponseEntity<BaseResponse>(response, HttpStatus.BAD_REQUEST);
