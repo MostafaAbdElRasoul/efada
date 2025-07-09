@@ -19,6 +19,7 @@ import com.efada.base.BaseResponse;
 import com.efada.entity.ErrorLog;
 import com.efada.entity.UserLoginHistory;
 import com.efada.enums.LoginAction;
+import com.efada.exception.EfadaCustomException;
 import com.efada.redis.entities.LoggedUser;
 import com.efada.repository.ErrorLogRepository;
 import com.efada.security.EfadaSecurityUser;
@@ -146,4 +147,21 @@ public class EfadaUtils {
                 .build();
         return new ResponseEntity<>(response, status);
     }
+	
+	
+	public static EfadaSecurityUser getEfadaSecurityUser() {
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null && auth.getPrincipal() instanceof EfadaSecurityUser) {
+			EfadaSecurityUser user = (EfadaSecurityUser) auth.getPrincipal();
+			return user;
+		}
+		return null;
+	}
+	
+	public static void checkAuthorityForGetRequestAndDetails(Long id) {
+		EfadaSecurityUser user = getEfadaSecurityUser();		 
+		 if(!"ADMIN".equals(user.getUserRole()) && !(user.getId().equals(id)))
+				 throw new EfadaCustomException("you are not authorized to do this action");		 
+	 }
 }

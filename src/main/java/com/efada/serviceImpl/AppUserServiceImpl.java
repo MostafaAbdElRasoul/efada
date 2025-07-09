@@ -1,9 +1,11 @@
 package com.efada.serviceImpl;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +19,7 @@ import com.efada.utils.EfadaLogger;
 import com.efada.utils.EfadaUtils;
 import com.efada.utils.FileSystemUtils;
 import com.efada.utils.ObjectMapperUtils;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import jakarta.persistence.EntityManager;
 import lombok.NoArgsConstructor;
@@ -105,4 +108,28 @@ public class AppUserServiceImpl extends BaseServiceImpl<AppUser, Long, AppUserDT
 		return super.save(dto);
 	}
 
+	@Override
+	public AppUserDTO getById(Long id) {
+		EfadaUtils.checkAuthorityForGetRequestAndDetails(id);
+		return super.getById(id);
+	}
+
+	@Override
+	public AppUserDTO getOne(Long id) {
+		EfadaUtils.checkAuthorityForGetRequestAndDetails(id);
+		return super.getOne(id);
+	}
+
+	@Override
+	public void deleteById(Long id) {
+		EfadaUtils.checkAuthorityForGetRequestAndDetails(id);
+		super.deleteById(id);
+	}
+
+	@Override
+	public AppUserDTO updateById(Long id, ObjectNode obj) {
+		EfadaUtils.checkAuthorityForGetRequestAndDetails(id);
+		return super.updateById(id, obj);
+	}
+	
 }
