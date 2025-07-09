@@ -110,7 +110,7 @@ public class JwtService {
         int expiration
     ) {
     	Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.SECOND, expiration);
+		calendar.add(Calendar.HOUR, expiration);
 		
         return Jwts
             .builder()
