@@ -3,6 +3,7 @@ package com.efada.dummy;
 
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/dummyREST")
+@Profile("dev")
 public class DummyRESTController {
 
 	private final RestTemplate restTemplate;
