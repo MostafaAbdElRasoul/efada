@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.efada.entity.AppUser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -92,5 +93,15 @@ public class DummyRESTController {
 	public ResponseEntity<?> welcome(){
 		System.out.println("welcome");
 		return ResponseEntity.ok("welcome");
+	}
+	
+	@GetMapping("/user")
+	public ResponseEntity<AppUser> returnUser(){
+		AppUser user = new AppUser();
+		user.setId(99L);
+		user.setUsername("testUser");
+		user.setEmail("test@gmail.com");
+		user.setPassword("123");
+		return ResponseEntity.ok(user);
 	}
 }
