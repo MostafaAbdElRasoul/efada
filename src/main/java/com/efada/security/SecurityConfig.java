@@ -33,7 +33,8 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/api/v1/auth/**",
             "/dummyREST/**",
-            "/actuator/**"
+            "/actuator/**",
+            "/explorer/**"
 	};
 	
     private final JwtAuthenticationFilter jwtAuthFilter;
