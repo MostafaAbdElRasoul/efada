@@ -1,9 +1,12 @@
 package com.efada.dummy;
 
 
+//import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Profile;
+//import org.springframework.hateoas.EntityModel;
+//import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -96,12 +99,24 @@ public class DummyRESTController {
 	}
 	
 	@GetMapping("/user")
-	public ResponseEntity<AppUser> returnUser(){
+	public AppUser returnUser(){
 		AppUser user = new AppUser();
 		user.setId(99L);
 		user.setUsername("testUser");
 		user.setEmail("test@gmail.com");
 		user.setPassword("123");
-		return ResponseEntity.ok(user);
+		return user;
 	}
+	
+	/*
+	 * @GetMapping("/hateoas") public EntityModel<AppUser> returnHalResponse(){
+	 * AppUser user = new AppUser(); user.setId(100L); user.setUsername("halUser");
+	 * user.setEmail("test@gmail.com"); user.setPassword("123");
+	 * 
+	 * EntityModel<AppUser> entityModel = EntityModel.of(user); WebMvcLinkBuilder
+	 * link = linkTo(methodOn(this.getClass()).returnUser());
+	 * entityModel.add(link.withRel("user"));
+	 * 
+	 * return entityModel; }
+	 */
 }
